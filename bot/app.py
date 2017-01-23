@@ -3,20 +3,24 @@ Actual server application
 """
 
 # imports
+import sys
 from datetime import datetime
 from time import sleep
-from server.harvester import downloadJSON, storeResponse
+
+from bot.opensky import harvest
 
 # Constants
 HARVEST_INTERVAL = 60
 RETRY_INTERVALS = [10, 20, 60]
+HARVESTERS = {"opensky": (harvest, "OpenSky Harvest Bot")}
 
-def main():
+
+def main(harvester, name="Unnamed Bot"):
     """
     Main loop
     :return: None
     """
-    print "OpenSky Harvest Server started at", datetime.now()
+    print "%s started at" % name, datetime.now()
     retry = 0
     while True:
         if retry >= len(RETRY_INTERVALS): retry = len(RETRY_INTERVALS) - 1
@@ -24,28 +28,18 @@ def main():
         errtime = RETRY_INTERVALS[retry]
         try:
             try:
-                r = downloadJSON()
+                result = harvester()
             except KeyboardInterrupt:
                 raise
             except Exception, e:
                 retry += 1
-                printErr("Download unsuccessful - " + str(e), errtime)
+                printErr("Harvest unsuccessful - " + str(e), errtime)
                 waittime = errtime
             else:
-                try:
-                    if storeResponse(r):
-                        printSuccess(r)
-                        retry = 0
-                    else:
-                        retry += 1
-                        printErr("Storing unsuccessful", errtime)
-                        waittime = errtime
-                except KeyboardInterrupt:
-                    raise
-                except Exception, e:
-                    retry += 1
-                    printErr("Storing unsuccessful - " + str(e), errtime)
-                    waittime = errtime
+                if result['success']:
+                    printSuccess(result['message'])
+                else:
+                    printErr(result['message'], errtime)
         except KeyboardInterrupt:
             raise
         except Exception, e:
@@ -67,16 +61,32 @@ def printErr(message, retry, fatal=False):
     p = "%s %s: %s. %s in %d seconds." % (t, error, message, restart, retry)
     print p
 
-def printSuccess(response):
+
+def printSuccess(message):
     """
     Print successful harvest
     :param response: The download response
     :return: None
     """
     t = str(datetime.now())
-    p = "%s Info: Successful harvest, %d aircraft tracked. Next harvest in %d seconds." % (t, len(response["states"]), HARVEST_INTERVAL)
+    p = "%s Info: %s Next harvest in %d seconds." % (t, message, HARVEST_INTERVAL)
     print p
 
 
+def cli():
+    argv = sys.argv
+    if len(argv) != 2:
+        sys.exit("Invalid arguments. Please choose botname.")
+        quit()
+    if argv[1] not in HARVESTERS:
+        print "Listed bots:"
+        for b in HARVESTERS:
+            print "%s - %s" % (b, HARVESTERS[b][1])
+            sys.exit("Please choose a bot from the list.")
+    botname = sys.argv[1]
+    fun, name = HARVESTERS[botname]
+    main(fun, name)
+
+
 if __name__ == "__main__":
-    main()
+    cli()

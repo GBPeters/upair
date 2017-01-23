@@ -3,8 +3,9 @@ This module contains functions for downloading and storing OpenSky data
 """
 
 # Imports
-import urllib2
 import json
+import urllib2
+
 from db.pghandler import Connection
 
 # Constants
@@ -28,7 +29,6 @@ def storeResponse(response):
     :param The response in a JSON object, as specified on opensky-network.org/apidoc/rest.html
     :return: Boolean, whether storing has succeeded.
     """
-    succeed = False
     with Connection(autocommit=False) as con:
         sql = "INSERT INTO responses (time) VALUES (%d) RETURNING id" % response["time"]
         rid = con.selectOne(sql)[0]
@@ -56,8 +56,19 @@ def storeResponse(response):
                   "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)" % tuple(strvalues)
             con.execute(sql)
         con.commit()
-        succeed = True
-    return succeed
+    return True
+
+
+def harvest():
+    """
+    OpenSky Harvest Base function
+    :return: a dictionary containing keys 'success' (boolean) and 'message' (string)
+    """
+    j = downloadJSON()
+    succeed = storeResponse(j)
+    nstates = len(j["states"])
+    result = {"success": succeed, "message": "Successful harvest, %d aircraft tracked." % nstates}
+    return result
 
 if __name__ == '__main__':
     r = downloadJSON()
