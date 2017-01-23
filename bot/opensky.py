@@ -59,9 +59,9 @@ def storeResponse(response):
     return True
 
 
-def harvest():
+def harvestOpenSky():
     """
-    OpenSky Harvest Base function
+    OpenSky Harvest Base function, for use in bot.app.main
     :return: a dictionary containing keys 'success' (boolean) and 'message' (string)
     """
     j = downloadJSON()

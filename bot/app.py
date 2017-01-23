@@ -7,46 +7,67 @@ import sys
 from datetime import datetime
 from time import sleep
 
-from bot.opensky import harvest
+from bot.gatwick import harvestGAS
+from bot.opensky import harvestOpenSky
 
 # Constants
 HARVEST_INTERVAL = 60
 RETRY_INTERVALS = [10, 20, 60]
-HARVESTERS = {"opensky": (harvest, "OpenSky Harvest Bot")}
+HARVESTERS = {"opensky": (harvestOpenSky, "OpenSky Harvest Bot"),
+              "gatwick": (harvestGAS, "Gatwick Aviation Society Aircraft DB")}
 
 
-def main(harvester, name="Unnamed Bot"):
+def main(harvester, name="Unnamed Bot", interval=HARVEST_INTERVAL):
     """
     Main loop
+    :param harvester: The harvest function to use
+    :param name: The display name for chosen harvester
+    :param interval: The interval to use for harvests
     :return: None
     """
     print "%s started at" % name, datetime.now()
     retry = 0
+    waittime = interval
     while True:
-        if retry >= len(RETRY_INTERVALS): retry = len(RETRY_INTERVALS) - 1
-        waittime = HARVEST_INTERVAL
-        errtime = RETRY_INTERVALS[retry]
         try:
+            if retry >= len(RETRY_INTERVALS): retry = len(RETRY_INTERVALS) - 1
+            waittime = interval
+            errtime = RETRY_INTERVALS[retry]
             try:
                 result = harvester()
             except KeyboardInterrupt:
-                raise
+                shutDown()
             except Exception, e:
                 retry += 1
                 printErr("Harvest unsuccessful - " + str(e), errtime)
                 waittime = errtime
             else:
                 if result['success']:
-                    printSuccess(result['message'])
+                    printSuccess(result['message'], interval)
                 else:
                     printErr(result['message'], errtime)
         except KeyboardInterrupt:
-            raise
+            shutDown()
         except Exception, e:
             retry += 1
             printErr(str(e), errtime, fatal=True)
             waittime = errtime
-        sleep(waittime)
+
+        try:
+            sleep(waittime)
+        except KeyboardInterrupt:
+            shutDown()
+        except:
+            pass
+
+
+def shutDown():
+    """
+    Gently shutdown
+    :return: None
+    """
+    print "Shutting down bot..."
+    sys.exit(0)
 
 def printErr(message, retry, fatal=False):
     """
@@ -62,30 +83,43 @@ def printErr(message, retry, fatal=False):
     print p
 
 
-def printSuccess(message):
+def printSuccess(message, nextHarvest=HARVEST_INTERVAL):
     """
     Print successful harvest
     :param response: The download response
+    :param nextHarvest: Time in seconds to next harvest
     :return: None
     """
     t = str(datetime.now())
-    p = "%s Info: %s Next harvest in %d seconds." % (t, message, HARVEST_INTERVAL)
+    p = "%s Info: %s Next harvest in %d seconds." % (t, message, nextHarvest)
     print p
 
 
 def cli():
+    """
+    Command Line interface for the bot.
+    :return: None
+    """
     argv = sys.argv
-    if len(argv) != 2:
+    if len(argv) != 2 and len(argv) != 3:
         sys.exit("Invalid arguments. Please choose botname.")
-        quit()
     if argv[1] not in HARVESTERS:
         print "Listed bots:"
         for b in HARVESTERS:
             print "%s - %s" % (b, HARVESTERS[b][1])
             sys.exit("Please choose a bot from the list.")
+    if len(argv) == 3:
+        try:
+            interval = int(argv[2])
+            if interval < 0: interval = 0
+        except:
+            sys.exit("Interval is not a number.")
+    else:
+        interval = HARVEST_INTERVAL
+
     botname = sys.argv[1]
     fun, name = HARVESTERS[botname]
-    main(fun, name)
+    main(fun, name, interval)
 
 
 if __name__ == "__main__":
