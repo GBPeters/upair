@@ -44,8 +44,7 @@ def getMissingICAO24Codes():
     Create a list of codes not yet included in the aircraft database
     :return: A list if ICAO24 Mode S transponder codes
     """
-    sql = "SELECT icao24 FROM states GROUP BY icao24 HAVING icao24 NOT IN " \
-          "(SELECT icao24 FROM aircraft)"
+    sql = "SELECT icao24 FROM aircraft WHERE registration IS NULL"
     with Connection() as con:
         codes = [code[0] for code in con.selectAll(sql)]
     return codes
@@ -72,19 +71,17 @@ def storeData(icao24, data):
     :param data: Dictionary with corresponding data
     :return:
     """
-    fieldnames = ""
     values = ""
     for key in GAS_FIELDS:
         name = GAS_FIELDS[key]
-        fieldnames += name + ","
         value = data[key]
         if value == '':
-            values += 'NULL,'
+            value = "NULL"
         else:
-            values += "'%s'," % value
-    fieldnames = fieldnames[:-1]
+            value = "'%s'" % value
+        values += "%s=%s," % (name, value)
     values = values[:-1]
-    sql = "INSERT INTO aircraft (icao24,%s) VALUES ('%s',%s)" % (fieldnames, icao24, values)
+    sql = "UPDATE aircraft SET %s WHERE icao24='%s'" % (values, icao24)
     with Connection(autocommit=True) as con:
         con.execute(sql)
 
@@ -92,7 +89,7 @@ def storeData(icao24, data):
 def harvestGAS():
     """
     GAS Harvest Base function, for use in bot.app.main
-    :return: A dictionary with keys success (boolean) and message (string)s
+    :return: A dictionary with keys success (boolean) and message (string)
     """
     codes = getMissingICAO24Codes()
     if len(codes) > 0:

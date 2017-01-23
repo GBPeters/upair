@@ -8,13 +8,15 @@ from datetime import datetime
 from time import sleep
 
 from bot.gatwick import harvestGAS
+from bot.linker import linkAircraft
 from bot.opensky import harvestOpenSky
 
 # Constants
 HARVEST_INTERVAL = 60
 RETRY_INTERVALS = [10, 20, 60]
 HARVESTERS = {"opensky": (harvestOpenSky, "OpenSky Harvest Bot"),
-              "gatwick": (harvestGAS, "Gatwick Aviation Society Aircraft DB")}
+              "gatwick": (harvestGAS, "Gatwick Aviation Society Aircraft DB Bot"),
+              "linker": (linkAircraft, "ICAO24 Code Linker Quickfix")}
 
 
 def main(harvester, name="Unnamed Bot", interval=HARVEST_INTERVAL):
