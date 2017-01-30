@@ -1,6 +1,3 @@
-import webbrowser
-from os import path
-
 from flask import Flask, jsonify
 from flask import url_for
 from werkzeug.utils import redirect
@@ -31,4 +28,4 @@ def now():
 
 
 if __name__ == "__main__":
-    app.run()
+    app.run(host="0.0.0.0")
