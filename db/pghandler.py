@@ -6,9 +6,9 @@ This module contains a PostgreSQL connection handler and require info.
 import psycopg2
 
 DB_NAME='upair'
-DB_HOST='localhost'
-DB_USER='postgres'
-DB_PASS='postgres'
+DB_HOST = '145.100.59.98'
+DB_USER = 'teammaja'
+DB_PASS = 'maja'
 DB_PORT='5432'
 DB_DRIVER='org.postgresql.Driver'
 
