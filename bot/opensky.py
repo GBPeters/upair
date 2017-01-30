@@ -26,7 +26,7 @@ def downloadJSON(url=API_URL):
 def storeResponse(response):
     """
     Store
-    :param The response in a JSON object, as specified on opensky-network.org/apidoc/rest.html
+    :param The response in a JSON object, as specified on opensky-network.org/apidoc/rest.static
     :return: Boolean, whether storing has succeeded.
     """
     with Connection(autocommit=False) as con:
@@ -69,6 +69,27 @@ def harvestOpenSky():
     nstates = len(j["states"])
     result = {"success": succeed, "message": "Successful harvest, %d aircraft tracked." % nstates}
     return result
+
+
+def convertToGeoJSON(j):
+    """
+    convert an OpenSky result to a plottable GeoJSON
+    :param j: the JSON object to convert
+    :return: A GeoJSON object
+    """
+    dic = {"type": "FeatureCollection",
+           "features": []}
+    for state in j["states"]:
+        lat = state[6]
+        lon = state[5]
+        if lat is not None and lon is not None:
+            f = {"type": "Feature",
+                 "geometry": {"type": "Point",
+                              "coordinates": [lon, lat]},
+                 "properties": {"id": state[0],
+                                "heading": state[-3]}}
+            dic["features"].append(f)
+    return dic
 
 if __name__ == '__main__':
     r = downloadJSON()
