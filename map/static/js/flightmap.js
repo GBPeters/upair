@@ -3,7 +3,7 @@ function initmap() {
     var map = L.map('map').fitBounds([[-20,-135],[60,45]]);
     var planeicon = L.icon({iconUrl: 'res/plane.png', iconSize: [32,32]})
     var realtime = L.realtime({
-        url: 'http://localhost:5000/now',
+        url: 'http://145.100.59.98:5000/now',
         crossOrigin: true,
         type: 'json',
     }, {
