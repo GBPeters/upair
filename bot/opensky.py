@@ -68,7 +68,7 @@ def storeResponse(response, db="LOCAL"):
     return True
 
 
-def harvestOpenSky(db="LCOAL"):
+def harvestOpenSky(db="LOCAL"):
     """
     OpenSky Harvest Base function, for use in bot.app.main
     :return: a dictionary containing keys 'success' (boolean) and 'message' (string)

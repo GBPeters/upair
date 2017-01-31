@@ -41,8 +41,7 @@ class Connection:
         self.conf = CONFIG[conf]
         self.__connect()
 
-    def __enter__(self, conf="LOCAL", autocommit=True, hardFail=False):
-        self.__init__(conf, autocommit, hardFail)
+    def __enter__(self):
         return self
 
     def __exit__(self, type, value, traceback):
