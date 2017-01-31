@@ -23,15 +23,24 @@ def downloadJSON(url=API_URL):
     raw = urllib2.urlopen(url).read()
     return json.loads(raw)
 
-def storeResponse(response):
+
+def storeResponse(response, db="LOCAL"):
     """
     Store
     :param The response in a JSON object, as specified on opensky-network.org/apidoc/rest.static
     :return: Boolean, whether storing has succeeded.
     """
-    with Connection(autocommit=False) as con:
+    with Connection(conf=db, autocommit=False) as con:
         sql = "INSERT INTO responses (time) VALUES (%d) RETURNING id" % response["time"]
         rid = con.selectOne(sql)[0]
+        sql = "INSERT INTO states " \
+              "(response_id, icao24, callsign, origin_country, time_position, time_velocity, " \
+              "longitude, latitude, altitude, on_ground, velocity, heading, vertical_rate) " \
+              "SELECT response_id, icao24, callsign, origin_country, time_position, time_velocity, " \
+              "longitude, latitude, altitude, on_ground, velocity, heading, vertical_rate " \
+              "FROM rtstates; " \
+              "TRUNCATE TABLE rtstates"
+        con.execute(sql)
         for state in response["states"]:
             values = [rid] + state[:-1]
             # Clean values
@@ -50,7 +59,7 @@ def storeResponse(response):
                     else:
                         strvalues += ["%s" % v]
                 i += 1
-            sql = "INSERT INTO states " \
+            sql = "INSERT INTO rtstates " \
                   "(response_id, icao24, callsign, origin_country, time_position, time_velocity, " \
                   "longitude, latitude, altitude, on_ground, velocity, heading, vertical_rate) " \
                   "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)" % tuple(strvalues)
@@ -59,13 +68,13 @@ def storeResponse(response):
     return True
 
 
-def harvestOpenSky():
+def harvestOpenSky(db="LCOAL"):
     """
     OpenSky Harvest Base function, for use in bot.app.main
     :return: a dictionary containing keys 'success' (boolean) and 'message' (string)
     """
     j = downloadJSON()
-    succeed = storeResponse(j)
+    succeed = storeResponse(j, db)
     nstates = len(j["states"])
     result = {"success": succeed, "message": "Successful harvest, %d aircraft tracked." % nstates}
     return result

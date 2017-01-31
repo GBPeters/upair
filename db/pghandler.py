@@ -22,10 +22,9 @@ class Config:
 
 
 CONFIG = {
-    "CLOUD": Config(
-        host="145.100.59.98",
+    "SERVER": Config(
         user="teammaja",
-        passw="maja",
+        passw="maja"
     ),
     "LOCAL": Config(
     )

@@ -4,22 +4,24 @@ Actual server application
 
 # imports
 import sys
+from argparse import ArgumentParser
 from datetime import datetime
 from time import sleep
 
 from bot.gatwick import harvestGAS
 from bot.linker import linkAircraft
 from bot.opensky import harvestOpenSky
+from db.pghandler import CONFIG
 
-# Constants
 HARVEST_INTERVAL = 60
 RETRY_INTERVALS = [10, 20, 60]
 HARVESTERS = {"opensky": (harvestOpenSky, "OpenSky Harvest Bot"),
               "gatwick": (harvestGAS, "Gatwick Aviation Society Aircraft DB Bot"),
               "linker": (linkAircraft, "ICAO24 Code Linker Quickfix")}
+DB = "LOCAL"
 
 
-def main(harvester, name="Unnamed Bot", interval=HARVEST_INTERVAL):
+def main(harvester, name="Unnamed Bot", interval=HARVEST_INTERVAL, db="LOCAL"):
     """
     Main loop
     :param harvester: The harvest function to use
@@ -36,7 +38,7 @@ def main(harvester, name="Unnamed Bot", interval=HARVEST_INTERVAL):
             waittime = interval
             errtime = RETRY_INTERVALS[retry]
             try:
-                result = harvester()
+                result = harvester(db)
             except KeyboardInterrupt:
                 shutDown()
             except Exception, e:
@@ -102,26 +104,15 @@ def cli():
     Command Line interface for the bot.
     :return: None
     """
-    argv = sys.argv
-    if len(argv) != 2 and len(argv) != 3:
-        sys.exit("Invalid arguments. Please choose botname.")
-    if argv[1] not in HARVESTERS:
-        print "Listed bots:"
-        for b in HARVESTERS:
-            print "%s - %s" % (b, HARVESTERS[b][1])
-            sys.exit("Please choose a bot from the list.")
-    if len(argv) == 3:
-        try:
-            interval = int(argv[2])
-            if interval < 0: interval = 0
-        except:
-            sys.exit("Interval is not a number.")
-    else:
-        interval = HARVEST_INTERVAL
-
-    botname = sys.argv[1]
-    fun, name = HARVESTERS[botname]
-    main(fun, name, interval)
+    argv = sys.argv[1:]
+    argp = ArgumentParser(argv)
+    argp.add_argument("bot", choices=HARVESTERS.keys(),
+                      help="name of the bot to use")
+    argp.add_argument("--interval", "-i", default=HARVEST_INTERVAL, type=int, help="harvest interval in seconds")
+    argp.add_argument("--db", "-d", default="LOCAL", choices=CONFIG.keys(), help="the database config setting to use.")
+    pargs = argp.parse_args(argv)
+    fun, name = HARVESTERS[pargs.bot]
+    main(fun, name, pargs.interval, pargs.db)
 
 
 if __name__ == "__main__":
