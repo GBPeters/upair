@@ -1,9 +1,9 @@
 from db.pghandler import Connection
 
 class Plane:
-    def __init__(self, id, iceo, tailnum, country, time_pos, time_vel, lat, lon, alt, ground, vel, heading, vert):
+    def __init__(self, id, icao, tailnum, country, time_pos, time_vel, lat, lon, alt, ground, vel, heading, vert):
         self.id = id
-        self.iceo = iceo
+        self.icao = icao
         self.tailnum = tailnum
         self.country = country
         self.time_pos = time_pos
@@ -23,7 +23,7 @@ with Connection() as c:
     for s in states:
         print s
         id = s[0]
-        iceo = s[2]
+        icao = s[2]
         tailnum = s[3]
         country = s[4]
         time_pos = s[5]
@@ -35,7 +35,7 @@ with Connection() as c:
         vel = s[11]
         heading = s[12]
         vert = s[13]
-        plane = Plane(id, iceo, tailnum, country, time_pos, time_vel, lat, lon, alt, ground, vel, heading, vert)
+        plane = Plane(id, icao, tailnum, country, time_pos, time_vel, lat, lon, alt, ground, vel, heading, vert)
         planes += [plane]
 
 print planes[1].heading
