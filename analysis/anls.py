@@ -1,4 +1,4 @@
-from analysis.Plane import Plane
+from analysis.plane import Plane
 from db.pghandler import Connection
 
 with Connection() as c:
@@ -19,7 +19,7 @@ with Connection() as c:
         vel = s[11]
         heading = s[12]
         vert = s[13]
-        plane = Plane(id, icao, tailnum, country, time_pos, time_vel, lat, lon, alt, ground, vel, heading, vert)
+        plane = Plane(icao, tailnum, country, time_pos, time_vel, lat, lon, alt, ground, vel, heading, vert)
         planes += [plane]
 
 print planes[1].heading

@@ -2,10 +2,11 @@ from flask import Flask, jsonify
 from flask import url_for
 from werkzeug.utils import redirect
 
-from bot.opensky import downloadJSON, convertToGeoJSON
+from map.realtime import RealtimeLoader
 
 app = Flask(__name__)
 
+DB = "LOCAL"
 
 @app.route("/")
 def home():
@@ -21,11 +22,14 @@ def testgjson():
 
 @app.route("/now")
 def now():
-    j = downloadJSON()
-    dic = convertToGeoJSON(j)
-    gjson = jsonify(dic)
-    return gjson
+    loader = RealtimeLoader(DB)
+    return jsonify(loader.getPositionsGJSON())
 
+
+def start(db="local", host="0.0.0.0"):
+    global DB
+    DB = db
+    app.run(host=host)
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0")
+    app.run()

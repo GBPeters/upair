@@ -7,7 +7,7 @@ function initmap() {
         crossOrigin: true,
         type: 'json',
     }, {
-        interval: 10 * 1000,
+        interval: 60 * 1000,
         pointToLayer: function (geoJsonPoint, latlng) {
             return L.marker(latlng, {icon: planeicon, rotationAngle: geoJsonPoint.properties.heading});
         }

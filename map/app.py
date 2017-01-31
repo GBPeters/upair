@@ -1,14 +1,17 @@
-import webbrowser
-from threading import Thread
+import sys
+from argparse import ArgumentParser
 
-from map.mapserver import app
+from db.pghandler import CONFIG
+from map.mapserver import start
 
 
-class MapThread(Thread):
-    def run(self):
-        app.run()
-
+def cli():
+    argv = sys.argv[1:]
+    argp = ArgumentParser(argv)
+    argp.add_argument("--host", "-H", default="localhost", help="host address")
+    argp.add_argument("--db", "-d", default="LOCAL", choices=CONFIG.keys(), help="the database config setting to use.")
+    pargs = argp.parse_args(argv)
+    start(pargs.db, pargs.host)
 
 if __name__ == '__main__':
-    MapThread().start()
-    webbrowser.open("http://localhost:5000", new=2)
+    cli()
