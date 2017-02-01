@@ -1,9 +1,11 @@
 
+var host = '145.100.59.98'
+
 function initmap() {
     var map = L.map('map').fitBounds([[-20,-135],[60,45]]);
-    var planeicon = L.icon({iconUrl: 'res/plane.png', iconSize: [32,32]})
+    var planeicon = L.icon({iconUrl: 'res/plane.png', iconSize: [24,24], iconAnchor: [12,12]})
     var realtime = L.realtime({
-        url: 'http://145.100.59.98:5000/now',
+        url: 'http://' + host + ':5000/now',
         crossOrigin: true,
         type: 'json',
     }, {

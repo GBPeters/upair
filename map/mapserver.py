@@ -23,7 +23,7 @@ def testgjson():
 @app.route("/now")
 def now():
     loader = RealtimeLoader(DB)
-    return jsonify(loader.getPositionsGJSON())
+    return jsonify(loader.getGJSON())
 
 
 def start(db="local", host="0.0.0.0"):

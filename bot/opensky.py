@@ -5,6 +5,7 @@ This module contains functions for downloading and storing OpenSky data
 # Imports
 import json
 import urllib2
+from thread import start_new_thread
 
 from db.pghandler import Connection
 
@@ -33,13 +34,7 @@ def storeResponse(response, db="LOCAL"):
     with Connection(conf=db, autocommit=False) as con:
         sql = "INSERT INTO responses (time) VALUES (%d) RETURNING id" % response["time"]
         rid = con.selectOne(sql)[0]
-        sql = "INSERT INTO states " \
-              "(response_id, icao24, callsign, origin_country, time_position, time_velocity, " \
-              "longitude, latitude, altitude, on_ground, velocity, heading, vertical_rate) " \
-              "SELECT response_id, icao24, callsign, origin_country, time_position, time_velocity, " \
-              "longitude, latitude, altitude, on_ground, velocity, heading, vertical_rate " \
-              "FROM rtstates; " \
-              "TRUNCATE TABLE rtstates"
+        sql = "TRUNCATE TABLE rtstates"
         con.execute(sql)
         for state in response["states"]:
             values = [rid] + state[:-1]
@@ -64,8 +59,33 @@ def storeResponse(response, db="LOCAL"):
                   "longitude, latitude, altitude, on_ground, velocity, heading, vertical_rate) " \
                   "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)" % tuple(strvalues)
             con.execute(sql)
+        sql = "INSERT INTO states " \
+              "(response_id, icao24, callsign, origin_country, time_position, time_velocity, " \
+              "longitude, latitude, altitude, on_ground, velocity, heading, vertical_rate) " \
+              "SELECT response_id, icao24, callsign, origin_country, time_position, time_velocity, " \
+              "longitude, latitude, altitude, on_ground, velocity, heading, vertical_rate " \
+              "FROM rtstates; "
+        con.execute(sql)
         con.commit()
     return True
+
+
+def createFlightPaths(db="LOCAL"):
+    with Connection(conf=db) as con:
+        sql = '''
+        TRUNCATE rtflightpaths;
+        INSERT INTO rtflightpaths (icao24, callsign, minres, maxres, mintime, maxtime, geom)
+        SELECT r.icao24, r.callsign, min(s.response_id) minres, max(s.response_id) maxres,
+        min(s.time_position) mintime, max(s.time_position) maxtime, ST_MakeLine(s.geom) geom FROM rtstates AS r
+        LEFT JOIN (select response_id, icao24, callsign, time_position, ST_Point(longitude, latitude) geom FROM states
+        WHERE time_position IS NOT NULL AND response_id >= (SELECT id FROM responses
+        WHERE to_timestamp(time) > CURRENT_TIMESTAMP - INTERVAL '1 day'
+        ORDER BY time asc limit 1) ORDER BY time_position DESC) AS s
+        ON r.icao24 = s.icao24 AND r.callsign = s.callsign
+        WHERE r.latitude IS NOT NULL
+        GROUP BY r.icao24, r.callsign
+        '''
+        con.execute(sql)
 
 
 def harvestOpenSky(db="LOCAL"):
@@ -76,6 +96,7 @@ def harvestOpenSky(db="LOCAL"):
     j = downloadJSON()
     succeed = storeResponse(j, db)
     nstates = len(j["states"])
+    start_new_thread(createFlightPaths, (db,))
     result = {"success": succeed, "message": "Successful harvest, %d aircraft tracked." % nstates}
     return result
 
