@@ -32,7 +32,7 @@ def downloadGASPage(icao24):
     for key in GAS_FIELDS:
         data[key] = ""
     headers = {"Host": "www.gatwickaviationsociety.org.uk",
-               "Accept": "text/static,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+               "Accept": "text/web,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
                "Accept-Language": "en-US;q=0.7,en;q=0.3",
                "Accept-Encoding": "gzip, deflate",
                "Referer": "http://www.gatwickaviationsociety.org.uk/modeslookup.asp"}
