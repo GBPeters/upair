@@ -27,10 +27,10 @@ sudo -u postgres psql -d upair -f sql/create_states.sql
 # Add to pythonpath
 SCRIPT=$(readlink -f $0)
 SCRIPTPATH='dirname $SCRIPT'
-cat >> ~/.profile <<x
-export PYTHONPATH=$PYTHONPATH:$SCRIPTPATH
-x
-source ~/.profile
+SITEDIR=$(python -c 'import site; site._script()' --user-site)
+mkdir -p "$SITEDIR"
+echo "$SCRIPTPATH" > "$SITEDIR/upair.pth"
+
 
 
 # Run instructions
