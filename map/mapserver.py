@@ -9,6 +9,7 @@ from werkzeug.utils import redirect
 from map.realtime import RealtimeLoader
 
 app = Flask('map', root_path="/root/git/upair/map/")
+print app.static_folder
 
 DB = "LOCAL"
 
