@@ -1,10 +1,10 @@
-﻿-- Table: public.states
+﻿-- Table: public.rtstates
 
--- DROP TABLE public.states;
+-- DROP TABLE public.rtstates;
 
-CREATE TABLE public.states
+CREATE TABLE public.rtstates
 (
-  id bigint NOT NULL DEFAULT nextval('states_id_seq'::regclass),
+  id bigserial NOT NULL,
   response_id bigint,
   icao24 character(6) NOT NULL,
   callsign character varying(15),
@@ -18,11 +18,11 @@ CREATE TABLE public.states
   velocity double precision,
   heading double precision,
   vertical_rate double precision,
-  CONSTRAINT states_pkey PRIMARY KEY (id),
-  CONSTRAINT states_response_id_icao24_key UNIQUE (response_id, icao24)
+  CONSTRAINT rtstates_pkey PRIMARY KEY (id),
+  CONSTRAINT rtstates_response_id_icao24_key UNIQUE (response_id, icao24)
 )
 WITH (
   OIDS=FALSE
 );
-ALTER TABLE public.states
+ALTER TABLE public.rtstates
   OWNER TO postgres;
