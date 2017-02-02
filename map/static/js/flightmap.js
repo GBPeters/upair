@@ -1,8 +1,8 @@
 
-var host = '145.100.59.98'
+var host = 'localhost'
 
 var map = L.map('map').fitBounds([[-20,-135],[60,45]]);
-var planeicon = L.icon({iconUrl: 'res/plane.png', iconSize: [24,24], iconAnchor: [12,12]})
+var planeicon = L.icon({iconUrl: 'res/plane.png', iconSize: [16,16], iconAnchor: [8,8]})
 var now = L.realtime({
     url: 'http://' + host + ':5000/now',
     crossOrigin: true,
@@ -11,6 +11,21 @@ var now = L.realtime({
     interval: 60 * 1000,
     pointToLayer: function (geoJsonPoint, latlng) {
         return L.marker(latlng, {icon: planeicon, rotationAngle: geoJsonPoint.properties.heading});
+    },
+    style: function(geoJsonFeature) {
+        return {weight: 0.5}
+    },
+    onEachFeature: function(feature, layer) {
+        layer.on('mouseover', function(e) {
+            layer.setStyle({
+                weight: 2
+            });
+        });
+        layer.on('mouseout', function(e) {
+            layer.setStyle({
+                weight: 0.5
+            });
+        });
     }
 }).addTo(map);
 // Disabled, data too large to display

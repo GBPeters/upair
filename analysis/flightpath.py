@@ -11,7 +11,7 @@ class FlightPath:
 
     def getCoords(self):
         coords = self.responses = [(r[2], r[1]) for r in self.responses.values()]
-        # Fix dateline crossings
+        # Fix dateline crossings, check for onGround=True
         mls = []
         spl = 0
         xn0, yn0 = coords[0]
