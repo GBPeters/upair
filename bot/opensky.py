@@ -29,7 +29,7 @@ def downloadJSON(url=API_URL):
 def storeResponse(response, db="LOCAL"):
     """
     Store
-    :param The response in a JSON object, as specified on opensky-network.org/apidoc/rest.web
+    :param The response in a JSON object, as specified on opensky-network.org/apidoc/rest.static
     :return: Boolean, whether storing has succeeded.
     """
     with Connection(conf=db, autocommit=False) as con:
