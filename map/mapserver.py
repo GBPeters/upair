@@ -18,13 +18,8 @@ def home():
     Home directory redirects to flightmap.html
     :return:
     """
-    return redirect(url_for("web", filename="flightmap.html"))
+    return redirect(url_for("static", filename="flightmap.html"))
 
-
-@app.route("/web/flightmap.html")
-def html():
-    return "poep"
-    # return send_from_directory("web", "flightmap.html")
 
 @app.route("/testgjson")
 def testgjson():
