@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+export PGPASSWORD=maja
+
 # Install postgres and postgis
 echo "Installing PostgreSQL and PostGIS extension..."
 sudo sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt xenial-pgdg main" >> /etc/apt/sources.list'
@@ -16,6 +18,7 @@ sudo pip install .
 # Create database and tables
 echo "Configuring database..."
 sudo -u postgres psql -c "CREATE ROLE teammaja WITH LOGIN CREATEDB"
+sudo -u postgres psql -c "ALTER ROLE teammaja WITH PASSWORD '$PGPASSWORD'"
 psql -h localhost -U teammaja -c "CREATE DATABASE upair"
 sudo -u postgres psql -d upair -c "CREATE EXTENSION postgis;"
 psql -h localhost -U teammaja -d upair -f sql/create_aircraft.sql
@@ -24,7 +27,6 @@ psql -h localhost -U teammaja -d upair -f sql/create_responses.sql
 psql -h localhost -U teammaja -d upair -f sql/create_rtflightpaths.sql
 psql -h localhost -U teammaja -d upair -f sql/create_rtstates.sql
 psql -h localhost -U teammaja -d upair -f sql/create_states.sql
-sudo -u postgres psql -c "ALTER ROLE teammaja WITH PASSWORD 'maja'"
 
 # Run instructions
 echo "Install done."
