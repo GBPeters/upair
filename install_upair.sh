@@ -19,7 +19,7 @@ sudo pip install .
 echo "Configuring database..."
 sudo -u postgres psql -c "CREATE ROLE teammaja WITH LOGIN CREATEDB"
 sudo -u postgres psql -c "ALTER ROLE teammaja WITH PASSWORD '$PGPASSWORD'"
-psql -h localhost -U teammaja -c "CREATE DATABASE upair"
+psql -h localhost -U teammaja -d postgres -c "CREATE DATABASE upair"
 sudo -u postgres psql -d upair -c "CREATE EXTENSION postgis;"
 psql -h localhost -U teammaja -d upair -f sql/create_aircraft.sql
 psql -h localhost -U teammaja -d upair -f sql/create_airways.sql
