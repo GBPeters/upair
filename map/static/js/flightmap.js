@@ -1,5 +1,5 @@
 
-var host = '145.100.59.98'
+var host = '145.100.59.244'
 
 var map = L.map('map').fitBounds([[-20,-135],[60,45]]);
 var planeicon = L.icon({iconUrl: 'res/plane.png', iconSize: [16,16], iconAnchor: [8,8]})
