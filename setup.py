@@ -12,7 +12,7 @@ def read(fname):
 
 
 setup(
-    name="UpAir",
+    name="Up in the Air",
     version="0.1",
     author="Team Maja - Simon Veen & Gijs Peters",
     author_email="simon.veen@wur.nl",

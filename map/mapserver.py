@@ -1,3 +1,7 @@
+"""
+Flask-based mapserver
+"""
+
 from flask import Flask, jsonify
 from flask import url_for
 from werkzeug.utils import redirect
@@ -10,11 +14,19 @@ DB = "LOCAL"
 
 @app.route("/")
 def home():
+    """
+    Home directory redirects to flightmap.html
+    :return:
+    """
     return redirect(url_for("static", filename="flightmap.html"))
 
 
 @app.route("/testgjson")
 def testgjson():
+    """
+    Returns a testGJSON with one coordinate
+    :return:
+    """
     geom = {"geometry": {"type": "Point", "coordinates": [51.56, 38.18]}, "type": "Feature", "properties": {}}
     gjson = jsonify(geom)
     return gjson
@@ -22,6 +34,10 @@ def testgjson():
 
 @app.route("/now")
 def now():
+    """
+    Return current positions and flightpaths
+    :return:
+    """
     return RealtimeLoader(DB).getNow()
 
 

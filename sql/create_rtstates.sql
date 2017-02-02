@@ -18,6 +18,7 @@ CREATE TABLE public.rtstates
   velocity double precision,
   heading double precision,
   vertical_rate double precision,
+  atrisk boolean,
   CONSTRAINT rtstates_pkey PRIMARY KEY (id),
   CONSTRAINT rtstates_response_id_icao24_key UNIQUE (response_id, icao24)
 )

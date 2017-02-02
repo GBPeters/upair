@@ -1,6 +1,7 @@
 """
 Module for harvesting data from the
 Gatwick Aviation Society (GAS) aircraft database
+DO NOT USE
 """
 
 # Imports

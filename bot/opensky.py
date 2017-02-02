@@ -58,8 +58,16 @@ def storeResponse(response, db="LOCAL"):
             sql = "INSERT INTO rtstates " \
                   "(response_id, icao24, callsign, origin_country, time_position, time_velocity, " \
                   "longitude, latitude, altitude, on_ground, velocity, heading, vertical_rate) " \
-                  "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)" % tuple(strvalues)
+                  "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) " % tuple(strvalues)
             con.execute(sql)
+        # Collision risk check
+        sql = '''
+        UPDATE rtstates r1 SET atrisk=exists(
+        SELECT 1 FROM rtstates r2
+        WHERE ST_DWithin(ST_MakePoint(r1.longitude, r1.latitude)::geography, ST_MakePoint(r2.longitude, r2.latitude)::geography, 8000)
+        AND abs(r1.altitude - r2.altitude) < 300 AND r1.icao24 <> r2.icao24)
+        '''
+        con.execute(sql)
         sql = "INSERT INTO states " \
               "(response_id, icao24, callsign, origin_country, time_position, time_velocity, " \
               "longitude, latitude, altitude, on_ground, velocity, heading, vertical_rate) " \
@@ -72,10 +80,15 @@ def storeResponse(response, db="LOCAL"):
 
 
 def createFlightPaths(db="LOCAL"):
+    """
+    Create flightpaths from rtstates and store them in table rtflightpaths
+    :param db: The db settings to use
+    :return: None
+    """
     with Connection(conf=db) as con:
         sql = 'SELECT * FROM rtstates WHERE time_position IS NOT NULL'
         rtstates = con.selectAll(sql)
-        sql = '''
+        sql = '''TRUNCATE TABLE rtflightpaths;
                 WITH res AS (SELECT id FROM responses
                 WHERE to_timestamp(time) > CURRENT_TIMESTAMP - INTERVAL '1 day'
                 ORDER BY time ASC LIMIT 1),
@@ -94,6 +107,12 @@ def createFlightPaths(db="LOCAL"):
 
 
 def createAirWays(db="LOCAL"):
+    """
+    Create airways polygon around all previous known positions
+    DO NOT USE, polygon too complex for Leaflet to handle
+    :param db: The database settings to use
+    :return: None
+    """
     with Connection(conf=db) as con:
         sql = '''
         TRUNCATE TABLE airways;
@@ -118,17 +137,29 @@ def harvestOpenSky(db="LOCAL"):
     j = downloadJSON()
     succeed = storeResponse(j, db)
     nstates = len(j["states"])
+    # Create flightpaths in post-process thread
     PostProcess(db).start()
     result = {"success": succeed, "message": "Successful harvest, %d aircraft tracked." % nstates}
     return result
 
 
 class PostProcess(Thread):
+    """
+    Post-process thread to create flightpaths without interfering with the harvest
+    """
     def __init__(self, db="LOCAL"):
+        """
+        Constructor
+        :param db: The database settings to use
+        """
         Thread.__init__(self)
         self.db = db
 
     def run(self):
+        """
+        Thread implementation. Creates flightpaths.
+        :return: None
+        """
         createFlightPaths(self.db)
         # Uncomment to enable realtime airways creation, NOT advised.
         # createAirWays(self.db)

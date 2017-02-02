@@ -3,7 +3,7 @@ class Plane:
     Class for handling Plane data
     """
 
-    def __init__(self, icao, tailnum, country, time_pos, time_vel, lat, lon, alt, ground, vel, heading, vert):
+    def __init__(self, icao, tailnum, country, time_pos, time_vel, lat, lon, alt, ground, vel, heading, vert, atrisk):
         self.icao = icao
         self.tailnum = tailnum
         self.country = country
@@ -16,6 +16,7 @@ class Plane:
         self.vel = vel
         self.heading = heading
         self.vert = vert
+        self.atrisk = atrisk
 
     def getWKT(self):
         """
@@ -33,14 +34,32 @@ class Plane:
 
 
 class PlaneFactory:
+    """
+    Factory for creating Planes from raw input, and for creating raw output.
+    This factory supports one-line processing, building methods return the factory object.
+    """
     def __init__(self, plane=None):
+        """
+        Constructor
+        :param plane: plane an optional Plane object to put in this factory
+        """
         self.plane = plane
 
     def setPlane(self, plane):
+        """
+        Build method that sets this factory's Plane
+        :param plane: Plane object to put in this factory
+        :return: This factory
+        """
         self.plane = plane
         return self
 
     def buildPlaneFromSQL(self, sqlresponse):
+        """
+        Build a plane from an SQL response
+        :param sqlresponse: A line of SQL response, containing plane data
+        :return: This factory
+        """
         icao = sqlresponse[2]
         tailnum = sqlresponse[3]
         country = sqlresponse[4]
@@ -53,10 +72,16 @@ class PlaneFactory:
         vel = sqlresponse[11]
         heading = sqlresponse[12]
         vert = sqlresponse[13]
-        self.plane = Plane(icao, tailnum, country, time_pos, time_vel, lat, lon, alt, ground, vel, heading, vert)
+        atrisk = sqlresponse[14]
+        self.plane = Plane(icao, tailnum, country, time_pos, time_vel, lat, lon, alt, ground, vel, heading, vert,
+                           atrisk)
         return self
 
     def getGJSONPlane(self):
+        """
+        Convert this factory's plane to a valid GeoJSON object
+        :return: A GeoJSON object containing this factory's Plane
+        """
         p = self.plane
         gjson = {"type": "Feature",
                  "geometry": {
@@ -74,7 +99,8 @@ class PlaneFactory:
                      "onground": p.ground,
                      "velocity": p.vel,
                      "heading": p.heading,
-                     "vspeed": p.vert
+                     "vspeed": p.vert,
+                     "atrisk": p.atrisk
                  }
                  }
         return gjson

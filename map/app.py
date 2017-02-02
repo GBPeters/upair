@@ -13,6 +13,10 @@ from map.mapserver import start
 
 
 def cli():
+    """
+    Command line interface
+    :return: None
+    """
     argv = sys.argv[1:]
     argp = ArgumentParser(argv)
     argp.add_argument("--host", "-H", default="localhost", help="host address")

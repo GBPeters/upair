@@ -1,6 +1,7 @@
 """
 Quickfix for states - aircraft link issue,
 'Harvester' that just copies all unhandled aircraft from the states table to the aircraft table
+DO NOT USE
 """
 from db.pghandler import Connection
 

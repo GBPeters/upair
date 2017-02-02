@@ -1,10 +1,15 @@
 
 var host = 'localhost'
 
+// Create Map
 var map = L.map('map').fitBounds([[-20,-135],[60,45]]);
+
+// Create icons
 var planeicon = L.icon({iconUrl: 'res/plane.png', iconSize: [16,16], iconAnchor: [8,8]});
 var planegreen = L.icon({iconUrl: 'res/plane_green.png', iconSize: [16,16], iconAnchor: [8,8]});
 var planered = L.icon({iconUrl: 'res/plane_red.png', iconSize: [16,16], iconAnchor: [8,8]});
+
+// Create realtime leaflet layer
 var now = L.realtime({
     url: 'http://' + host + ':5000/now',
     crossOrigin: true,
@@ -12,11 +17,12 @@ var now = L.realtime({
 }, {
     interval: 60 * 1000,
     pointToLayer: function (geoJsonPoint, latlng) {
+        // Set icon to green or red for onground and atrisk aircraft, respectively
         var i = planeicon
         if (geoJsonPoint.properties.onground) {
             i = planegreen;
         }
-        popuptext =
+        // Create Marker
         m = L.marker(latlng, {icon: i, rotationAngle: geoJsonPoint.properties.heading});
         m.bindPopup("Callsign: " + geoJsonPoint.properties.callsign + "</br>"
         + "Country of origin: " + geoJsonPoint.properties.country + "</br>"
@@ -27,6 +33,7 @@ var now = L.realtime({
         return {weight: 0.5}
     },
     onEachFeature: function(feature, layer) {
+        // Highlight flightpath at mouseover
         layer.on('mouseover', function(e) {
             layer.setStyle({
                 weight: 2
@@ -47,6 +54,8 @@ var now = L.realtime({
 }, {
     interval: 3600 * 1000
 });*/
+
+// Create OSM tile layer
 L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
 }).addTo(map);
