@@ -24,7 +24,7 @@ def home():
 
 @app.route("/web/flightmap.html")
 def html():
-    return send_from_directory("./web", "flightmap.html")
+    return send_from_directory("web", "flightmap.html")
 
 @app.route("/testgjson")
 def testgjson():
