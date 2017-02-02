@@ -27,5 +27,5 @@ setup(
         "Topic :: Utilities",
         "License :: OSI Approved :: GPL-3.0"
     ],
-    install_requires=['flask', 'psycopg2', 'werkzeug', 'BeautifulSoup4', 'setuptools']
+    install_requires=['flask', 'psycopg2', 'werkzeug', 'BeautifulSoup4', 'setuptools', 'requests']
 )
