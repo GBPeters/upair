@@ -1,5 +1,5 @@
 
-var host = 'localhost'
+var host = '145.100.59.244'
 
 // Create Map
 var map = L.map('map').fitBounds([[-20,-135],[60,45]]);

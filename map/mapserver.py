@@ -8,7 +8,7 @@ from werkzeug.utils import redirect
 
 from map.realtime import RealtimeLoader
 
-app = Flask(__name__)
+app = Flask('map')
 
 DB = "LOCAL"
 
