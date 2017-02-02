@@ -3,7 +3,6 @@ Flask-based mapserver
 """
 
 from flask import Flask, jsonify
-from flask import send_from_directory
 from flask import url_for
 from werkzeug.utils import redirect
 
@@ -24,7 +23,8 @@ def home():
 
 @app.route("/web/flightmap.html")
 def html():
-    return send_from_directory("web", "flightmap.html")
+    return "poep"
+    # return send_from_directory("web", "flightmap.html")
 
 @app.route("/testgjson")
 def testgjson():
