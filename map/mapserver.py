@@ -2,17 +2,14 @@
 Flask-based mapserver
 """
 
-from os import path
-
 from flask import Flask, jsonify
+from flask import send_from_directory
 from flask import url_for
 from werkzeug.utils import redirect
 
 from map.realtime import RealtimeLoader
 
-staticfolder = path.abspath(path.join(path.dirname(__file__), "static"))
-
-app = Flask(__name__, static_folder=staticfolder)
+app = Flask(__name__)
 
 DB = "LOCAL"
 
@@ -24,6 +21,10 @@ def home():
     """
     return redirect(url_for("static", filename="flightmap.html"))
 
+
+@app.route("/static/flightmap.html")
+def html():
+    return send_from_directory("./static", "flightmap.html")
 
 @app.route("/testgjson")
 def testgjson():
