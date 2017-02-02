@@ -11,15 +11,15 @@ class RealtimeLoader:
     def getNow(self):
         positions = self.getPositions()
         paths = self.getFlightPaths()
-        return {"type": "FeatureCollection",
-                "features": positions + paths}
+        return '{"type": "FeatureCollection", ' \
+               ' "features": %s,%s }' % (positions[:-1], paths[1:])
 
     def getPositions(self):
         with Connection(conf=self.db) as c:
             sql = "SELECT * FROM rtstates WHERE latitude IS NOT NULL"
             states = c.selectAll(sql)
             pf = PlaneFactory()
-            return [pf.buildPlaneFromSQL(s).getGJSONPlane() for s in states]
+            return json.dumps([pf.buildPlaneFromSQL(s).getGJSONPlane() for s in states])
 
     def getFlightPaths(self):
         with Connection(conf=self.db) as c:
@@ -35,7 +35,7 @@ class RealtimeLoader:
                          "callsign": callsign,
                      }}
                 features.append(f)
-            return features
+            return json.dumps(features)
 
     def getAirways(self):
         with Connection(conf=self.db) as c:

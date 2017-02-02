@@ -22,8 +22,7 @@ def testgjson():
 
 @app.route("/now")
 def now():
-    loader = RealtimeLoader(DB)
-    return jsonify(loader.getNow())
+    return RealtimeLoader(DB).getNow()
 
 
 # Disabled, airways too large for Leaflet too display.
