@@ -1,4 +1,11 @@
+# PYTHONPATH
+import os.path as path
 import sys
+
+projfolder = path.dirname(path.dirname(path.realpath(__file__)))
+sys.path.append(projfolder)
+
+#imports
 from argparse import ArgumentParser
 
 from db.pghandler import CONFIG

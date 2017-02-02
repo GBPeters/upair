@@ -1,9 +1,14 @@
 """
 Actual server application
 """
+# PYTHONPATH
+import os.path as path
+import sys
+
+projfolder = path.dirname(path.dirname(path.realpath(__file__)))
+sys.path.append(projfolder)
 
 # imports
-import sys
 from argparse import ArgumentParser
 from datetime import datetime
 from time import sleep

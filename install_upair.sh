@@ -24,15 +24,6 @@ sudo -u postgres psql -d upair -f sql/create_rtflightpaths.sql
 sudo -u postgres psql -d upair -f sql/create_rtstates.sql
 sudo -u postgres psql -d upair -f sql/create_states.sql
 
-# Add to pythonpath
-SCRIPT=$(readlink -f $0)
-SCRIPTPATH='dirname $SCRIPT'
-SITEDIR=$(python -c 'import site; site._script()' --user-site)
-mkdir -p "$SITEDIR"
-echo "$SCRIPTPATH" > "$SITEDIR/upair.pth"
-
-
-
 # Run instructions
 echo "Install done."
 echo "You should now be able to start up an opensky harvest bot using: "
