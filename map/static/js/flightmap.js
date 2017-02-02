@@ -16,7 +16,12 @@ var now = L.realtime({
         if (geoJsonPoint.properties.onground) {
             i = planegreen;
         }
-        return L.marker(latlng, {icon: i, rotationAngle: geoJsonPoint.properties.heading});
+        popuptext =
+        m = L.marker(latlng, {icon: i, rotationAngle: geoJsonPoint.properties.heading});
+        m.bindPopup("Callsign: " + geoJsonPoint.properties.callsign + "</br>"
+        + "Country of origin: " + geoJsonPoint.properties.country + "</br>"
+        + "Altitude: " + geoJsonPoint.properties.altitude.toString(), {});
+        return m;
     },
     style: function(geoJsonFeature) {
         return {weight: 0.5}

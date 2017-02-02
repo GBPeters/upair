@@ -70,7 +70,7 @@ class PlaneFactory:
                      "country": p.country,
                      "time_pos": p.time_pos,
                      "time_vel": p.time_vel,
-                     "altitutde": p.alt,
+                     "altitude": p.alt,
                      "onground": p.ground,
                      "velocity": p.vel,
                      "heading": p.heading,
