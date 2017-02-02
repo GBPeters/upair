@@ -8,7 +8,7 @@ from werkzeug.utils import redirect
 
 from map.realtime import RealtimeLoader
 
-app = Flask(__name__)
+app = Flask('map', root_path="/root/git/upair/map/")
 
 DB = "LOCAL"
 
@@ -50,6 +50,7 @@ def now():
 def start(db="local", host="0.0.0.0"):
     global DB
     DB = db
+
     app.run(host=host)
 
 if __name__ == "__main__":
