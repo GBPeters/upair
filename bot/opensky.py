@@ -5,8 +5,9 @@ This module contains functions for downloading and storing OpenSky data
 # Imports
 import json
 import urllib2
-from thread import start_new_thread
+from threading import Thread
 
+from analysis.flightpath import FlightPathFactory
 from db.pghandler import Connection
 
 # Constants
@@ -72,18 +73,39 @@ def storeResponse(response, db="LOCAL"):
 
 def createFlightPaths(db="LOCAL"):
     with Connection(conf=db) as con:
+        sql = 'SELECT * FROM rtstates WHERE time_position IS NOT NULL'
+        rtstates = con.selectAll(sql)
         sql = '''
-        TRUNCATE rtflightpaths;
-        INSERT INTO rtflightpaths (icao24, callsign, minres, maxres, mintime, maxtime, geom)
-        SELECT r.icao24, r.callsign, min(s.response_id) minres, max(s.response_id) maxres,
-        min(s.time_position) mintime, max(s.time_position) maxtime, ST_MakeLine(s.geom) geom FROM rtstates AS r
-        LEFT JOIN (select response_id, icao24, callsign, time_position, ST_Point(longitude, latitude) geom FROM states
-        WHERE time_position IS NOT NULL AND response_id >= (SELECT id FROM responses
-        WHERE to_timestamp(time) > CURRENT_TIMESTAMP - INTERVAL '1 day'
-        ORDER BY time asc limit 1) ORDER BY time_position DESC) AS s
-        ON r.icao24 = s.icao24 AND r.callsign = s.callsign
-        WHERE r.latitude IS NOT NULL
-        GROUP BY r.icao24, r.callsign
+                WITH res AS (SELECT id FROM responses
+                WHERE to_timestamp(time) > CURRENT_TIMESTAMP - INTERVAL '1 day'
+                ORDER BY time ASC LIMIT 1),
+                s AS (SELECT icao24, callsign, response_id, time_position, latitude, longitude
+                FROM states WHERE response_id >= (SELECT * FROM res)
+                AND time_position IS NOT NULL)
+                SELECT s.* FROM s INNER JOIN (SELECT icao24, callsign FROM rtstates WHERE time_position IS NOT NULL)
+                AS r ON s.icao24=r.icao24 AND s.callsign=r.callsign
+                ORDER BY time_position DESC
+                '''
+        states = con.selectAll(sql)
+        for sql in FlightPathFactory().buildFlightPathsFromSQL(rtstates, states).sqlInsertGenerator("rtflightpaths"):
+            con.execute(sql)
+        con.commit()
+        con.execute(sql)
+
+
+def createAirWays(db="LOCAL"):
+    with Connection(conf=db) as con:
+        sql = '''
+        TRUNCATE TABLE airways;
+        WITH res AS (SELECT id FROM responses
+        WHERE to_timestamp(time) >= CURRENT_TIMESTAMP - INTERVAL '1 day'
+        ORDER BY time ASC LIMIT 1)
+        , s AS (SELECT * FROM states WHERE response_id >= (SELECT * FROM res)
+        AND time_position IS NOT NULL)
+        , points AS (SELECT ST_SetSRID(ST_Point(latitude, longitude), 4326) p
+        FROM s GROUP BY latitude, longitude)
+        INSERT INTO airways (geom)
+        SELECT ST_Buffer(ST_Collect(p)::geography, 10000)::geometry FROM points
         '''
         con.execute(sql)
 
@@ -96,9 +118,20 @@ def harvestOpenSky(db="LOCAL"):
     j = downloadJSON()
     succeed = storeResponse(j, db)
     nstates = len(j["states"])
-    start_new_thread(createFlightPaths, (db,))
+    PostProcess(db).start()
     result = {"success": succeed, "message": "Successful harvest, %d aircraft tracked." % nstates}
     return result
+
+
+class PostProcess(Thread):
+    def __init__(self, db="LOCAL"):
+        Thread.__init__(self)
+        self.db = db
+
+    def run(self):
+        createFlightPaths(self.db)
+        # Uncomment to enable realtime airways creation, NOT advised.
+        # createAirWays(self.db)
 
 
 def convertToGeoJSON(j):

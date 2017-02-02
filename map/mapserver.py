@@ -23,8 +23,14 @@ def testgjson():
 @app.route("/now")
 def now():
     loader = RealtimeLoader(DB)
-    return jsonify(loader.getGJSON())
+    return jsonify(loader.getNow())
 
+
+# Disabled, airways too large for Leaflet too display.
+# @app.route("/airways")
+# def airways():
+#     loader = RealtimeLoader(DB)
+#     return jsonify(loader.getAirways())
 
 def start(db="local", host="0.0.0.0"):
     global DB
