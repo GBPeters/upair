@@ -98,7 +98,7 @@ def createAirWays(db="LOCAL"):
         sql = '''
         TRUNCATE TABLE airways;
         WITH res AS (SELECT id FROM responses
-        WHERE to_timestamp(time) >= CURRENT_TIMESTAMP - INTERVAL '1 day'
+        WHERE to_timestamp(time) >= CURRENT_TIMESTAMP - INTERVAL '3 hours'
         ORDER BY time ASC LIMIT 1)
         , s AS (SELECT * FROM states WHERE response_id >= (SELECT * FROM res)
         AND time_position IS NOT NULL)
