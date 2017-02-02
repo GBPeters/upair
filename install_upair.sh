@@ -9,7 +9,7 @@ sudo apt-get install postgresql-9.5-postgis-2.2 pgadmin3 postgresql-contrib-9.5
 
 # Install setuptools and other dependencies
 echo "Installing Python dependencies..."
-sudo pip install --update pip
+sudo pip install --upgrade pip
 sudo pip install .
 
 # Create database and tables
