@@ -30,6 +30,8 @@ SCRIPTPATH='dirname $SCRIPT'
 cat >> ~/.profile <<x
 export PYTHONPATH=$PYTHONPATH:$SCRIPTPATH
 x
+source ~/.profile
+
 
 # Run instructions
 echo "Install done."
