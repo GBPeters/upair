@@ -15,14 +15,16 @@ sudo pip install .
 
 # Create database and tables
 echo "Configuring database..."
-sudo -u postgres psql -c "CREATE DATABASE upair;"
+sudo -u postgres psql -c "CREATE ROLE teammaja WITH LOGIN, CREATEDB"
+psql -h localhost -U teammaja -c "CREATE DATABASE upair"
 sudo -u postgres psql -d upair -c "CREATE EXTENSION postgis;"
-sudo -u postgres psql -d upair -f sql/create_aircraft.sql
-sudo -u postgres psql -d upair -f sql/create_airways.sql
-sudo -u postgres psql -d upair -f sql/create_responses.sql
-sudo -u postgres psql -d upair -f sql/create_rtflightpaths.sql
-sudo -u postgres psql -d upair -f sql/create_rtstates.sql
-sudo -u postgres psql -d upair -f sql/create_states.sql
+psql -h localhost -U teammaja -d upair -f sql/create_aircraft.sql
+psql -h localhost -U teammaja -d upair -f sql/create_airways.sql
+psql -h localhost -U teammaja -d upair -f sql/create_responses.sql
+psql -h localhost -U teammaja -d upair -f sql/create_rtflightpaths.sql
+psql -h localhost -U teammaja -d upair -f sql/create_rtstates.sql
+psql -h localhost -U teammaja -d upair -f sql/create_states.sql
+sudo -u postgres psql -c "ALTER ROLE teammaja WITH PASSWORD 'maja'"
 
 # Run instructions
 echo "Install done."

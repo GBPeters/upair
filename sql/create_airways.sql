@@ -12,4 +12,4 @@ WITH (
   OIDS=FALSE
 );
 ALTER TABLE public.airways
-  OWNER TO postgres;
+  OWNER TO teammaja;

@@ -20,4 +20,4 @@ WITH (
   OIDS=FALSE
 );
 ALTER TABLE public.aircraft
-  OWNER TO postgres;
+  OWNER TO teammaja;

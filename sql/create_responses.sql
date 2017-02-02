@@ -12,4 +12,4 @@ WITH (
   OIDS=FALSE
 );
 ALTER TABLE public.responses
-  OWNER TO postgres;
+  OWNER TO teammaja;

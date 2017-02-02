@@ -25,7 +25,7 @@ WITH (
   OIDS=FALSE
 );
 ALTER TABLE public.states
-  OWNER TO postgres;
+  OWNER TO teammaja;
 
 -- Index: public.states_response_id_idx
 

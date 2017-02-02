@@ -14,4 +14,4 @@ WITH (
   OIDS=FALSE
 );
 ALTER TABLE public.rtflightpaths
-  OWNER TO postgres;
+  OWNER TO teammaja;

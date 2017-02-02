@@ -25,4 +25,4 @@ WITH (
   OIDS=FALSE
 );
 ALTER TABLE public.rtstates
-  OWNER TO postgres;
+  OWNER TO teammaja;

@@ -13,7 +13,7 @@ class Config:
     Configurations container
     """
 
-    def __init__(self, name="upair", host="localhost", user="postgres", passw="postgres", port="5432"):
+    def __init__(self, name="upair", host="localhost", user="teammaja", passw="maja", port="5432"):
         self.DB_NAME = name
         self.DB_HOST = host
         self.DB_USER = user
@@ -23,8 +23,7 @@ class Config:
 
 CONFIG = {
     "SERVER": Config(
-        user="teammaja",
-        passw="maja"
+
     ),
     "LOCAL": Config(
     )
