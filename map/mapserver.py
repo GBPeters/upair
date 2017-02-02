@@ -2,13 +2,17 @@
 Flask-based mapserver
 """
 
+from os import path
+
 from flask import Flask, jsonify
 from flask import url_for
 from werkzeug.utils import redirect
 
 from map.realtime import RealtimeLoader
 
-app = Flask(__name__)
+staticfolder = path.abspath(path.join(path.dirname(__file__), "static"))
+
+app = Flask(__name__, static_folder=staticfolder)
 
 DB = "LOCAL"
 
